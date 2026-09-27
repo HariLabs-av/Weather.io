@@ -24,11 +24,15 @@
             <ul class="navbar-nav ms-auto align-items-lg-center">
 
                 <li class="nav-item my-2 my-lg-0">
-                    <?php if (function_exists('isLoggedIn') && isLoggedIn()): ?>
+                    <?php if (function_exists('isLoggedIn') && isLoggedIn() && (currentUser()['role'] ?? '') === 'admin'): ?>
                         <a class="btn btn-outline-primary ms-2" href="admin/index.php">Dashboard</a>
+                        <a class="btn btn-outline-secondary ms-2" href="logout.php">Log out</a>
+                    <?php elseif (function_exists('isLoggedIn') && isLoggedIn()): ?>
+                        <span class="small text-secondary ms-2">Hi, <?= e((string) currentUser()['name']) ?></span>
                         <a class="btn btn-outline-secondary ms-2" href="logout.php">Log out</a>
                     <?php else: ?>
                         <a class="btn btn-outline-primary ms-2" href="login.php">Log in</a>
+                        <a class="btn btn-primary ms-2" href="register.php">Register</a>
                     <?php endif; ?>
                 </li>
                

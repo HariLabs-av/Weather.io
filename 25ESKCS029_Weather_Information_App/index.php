@@ -132,7 +132,7 @@ require_once __DIR__ . '/auth/auth.php';
         
         function displayError(message) {
             const errorElement = document.getElementById('weatherError');
-            errorElement.textContent = message;
+            errorElement.textContent = `Weather unavailable. ${message}`;
             errorElement.classList.remove('d-none');
         }
 
@@ -170,6 +170,9 @@ require_once __DIR__ . '/auth/auth.php';
                 // lat-long find karo pehle
                 const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
                 const geoResponse = await fetch(geoUrl);
+                if (!geoResponse.ok) {
+                    throw new Error('The weather service could not be reached. Please try again.');
+                }
                 const geoData = await geoResponse.json();
 
                 if (!geoData.results || geoData.results.length === 0) {
@@ -192,7 +195,7 @@ require_once __DIR__ . '/auth/auth.php';
                 updateWeatherUI(location, weatherData);
                 
             } catch (error) {
-                displayError(error.message);
+                displayError(error instanceof TypeError ? 'Check your internet connection and try again.' : error.message);
             }
         }
 

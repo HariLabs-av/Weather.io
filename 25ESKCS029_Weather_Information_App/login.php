@@ -5,7 +5,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/auth/auth.php';
 
 if (isLoggedIn()) {
-    header('Location: admin/index.php');
+    header('Location: ' . ((currentUser()['role'] ?? '') === 'admin' ? 'admin/index.php' : 'index.php'));
     exit;
 }
 
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 session_regenerate_id(true);
                 unset($user['password_hash']);
                 $_SESSION['user'] = $user;
-                header('Location: admin/index.php');
+                header('Location: ' . ($user['role'] === 'admin' ? 'admin/index.php' : 'index.php'));
                 exit;
             }
 
@@ -50,8 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login - Weather.io</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="partial/darkstyle.css">
 </head>
-<body class="bg-light">
+<body>
 <main class="container py-5">
     <div class="row justify-content-center">
         <div class="col-sm-10 col-md-6 col-lg-4">
@@ -59,7 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="card-body p-4">
                     <a href="index.php" class="text-decoration-none text-secondary">← Back to Weather.io</a>
                     <h1 class="h3 mt-4 mb-1">Welcome back</h1>
-                    <p class="text-secondary mb-4">Sign in to the Weather.io admin panel.</p>
+                    <p class="text-secondary mb-4">Sign in to your Weather.io account.</p>
+                    <?php if (isset($_GET['registered'])): ?><div class="alert alert-success">Account created. You can now log in.</div><?php endif; ?>
                     <?php if ($error !== ''): ?>
                         <div class="alert alert-danger"><?= e($error) ?></div>
                     <?php endif; ?>
@@ -75,11 +77,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <button class="btn btn-primary w-100" type="submit">Log in</button>
                     </form>
-                    <p class="small text-secondary mt-4 mb-0">First time here? Run <code>admin/setup.php</code> after importing the database schema.</p>
+                    <p class="small text-secondary mt-4 mb-0">New to Weather.io? <a href="register.php">Create a user account</a>.</p>
                 </div>
             </div>
         </div>
     </div>
 </main>
+<script src="partial/darkstyle.js"></script>
 </body>
 </html>

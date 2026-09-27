@@ -3,6 +3,7 @@
 ## PHP/MySQL authentication
 
 The project includes a protected admin panel at `admin/index.php`.
+Visitors can create regular user accounts from `register.php`; public registration never allows an administrator role.
 
 ## Deploying on Render
 

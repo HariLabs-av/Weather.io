@@ -18,6 +18,11 @@ body {
     min-height: 100vh;
     background: var(--weather-bg);
     color: var(--weather-text);
+    --bs-body-bg: var(--weather-bg);
+    --bs-body-color: var(--weather-text);
+    --bs-secondary-color: var(--weather-muted);
+    --bs-tertiary-bg: var(--weather-surface-muted);
+    --bs-border-color: var(--weather-border);
 }
 
 .navbar {
@@ -91,6 +96,45 @@ body.dark-mode {
     --weather-accent: #83b8ff;
     --weather-accent-soft: #203d63;
     --weather-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.24);
+    --bs-body-bg: var(--weather-bg);
+    --bs-body-color: var(--weather-text);
+    --bs-secondary-color: var(--weather-muted);
+    --bs-tertiary-bg: var(--weather-surface-muted);
+    --bs-border-color: var(--weather-border);
+}
+
+body.dark-mode,
+body.dark-mode .container,
+body.dark-mode main,
+body.dark-mode footer {
+    background-color: var(--weather-bg) !important;
+    color: var(--weather-text) !important;
+}
+
+body.dark-mode .card,
+body.dark-mode .navbar {
+    background-color: var(--weather-surface) !important;
+    color: var(--weather-text) !important;
+}
+
+body.dark-mode .display-1,
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode strong,
+body.dark-mode .fw-bold {
+    color: var(--weather-text) !important;
+}
+
+body.dark-mode hr {
+    border-color: var(--weather-border) !important;
+    opacity: 1;
+}
+
+body.dark-mode .alert-danger {
+    --bs-alert-bg: #4a2027;
+    --bs-alert-border-color: #9d4653;
+    --bs-alert-color: #ffd9de;
 }
 
 body.dark-mode .btn-outline-primary {
