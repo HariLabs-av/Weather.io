@@ -1,4 +1,6 @@
-<?php session_start(); ?>
+<?php
+require_once __DIR__ . '/auth/auth.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,45 +9,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather.io</title>
     <link rel="icon" type="image/png" href="assests/icon.png">
-    <style rel="stylesheet">
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
-        body {
+        html {
             font-family: 'Roboto', sans-serif;
-            background-color: #f8f9fa;
-            color: #212529;
-        }
-
-        .card {
-            border-radius: 0.5rem;
-        }
-
-        .card-body {
-            padding: 2rem;
-        }
-
-        .navbar {
-            margin-bottom: 1rem;
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-
-        .form-control {
-            border-radius: 0.25rem;
-        }
-
-        .btn-outline-success {
-            border-radius: 0.25rem;
-        }
-
-        .dropdown-menu {
-            min-width: 10rem;
-        }
-        .dropdown-item {
-            padding: 0.5rem 1rem;
         }
     </style>
     <link rel="stylesheet" href="partial/darkstyle.css">
@@ -72,7 +40,7 @@
                             <small class="text-secondary" id="currentDate"></small>
                         </div>
                         <span
-                            class="badge bg-primary-subtle text-primary border border-primary-subtle fs-6 px-3 py-2 rounded-pill"
+                            class="badge weather-condition fs-6 px-3 py-2 rounded-pill"
                             id="weatherCondition">
                             --
                         </span>
@@ -103,42 +71,42 @@
 
                     <div class="row g-3">
                         <div class="col-6 col-md-4 col-lg-2">
-                            <div class="p-3 bg-body-tertiary rounded-3 text-center h-100">
+                            <div class="weather-stat p-3 rounded-3 text-center h-100">
                                 <small class="text-secondary d-block mb-1">Humidity</small>
                                 <span class="fw-bold fs-5" id="humidityValue">--%</span>
                             </div>
                         </div>
 
                         <div class="col-6 col-md-4 col-lg-2">
-                            <div class="p-3 bg-body-tertiary rounded-3 text-center h-100">
+                            <div class="weather-stat p-3 rounded-3 text-center h-100">
                                 <small class="text-secondary d-block mb-1">Wind Speed</small>
                                 <span class="fw-bold fs-5" id="windValue">-- km/h</span>
                             </div>
                         </div>
 
                         <div class="col-6 col-md-4 col-lg-2">
-                            <div class="p-3 bg-body-tertiary rounded-3 text-center h-100">
+                            <div class="weather-stat p-3 rounded-3 text-center h-100">
                                 <small class="text-secondary d-block mb-1">Pressure</small>
                                 <span class="fw-bold fs-5" id="pressureValue">-- hPa</span>
                             </div>
                         </div>
 
                         <div class="col-6 col-md-4 col-lg-2">
-                            <div class="p-3 bg-body-tertiary rounded-3 text-center h-100">
+                            <div class="weather-stat p-3 rounded-3 text-center h-100">
                                 <small class="text-secondary d-block mb-1">Visibility</small>
                                 <span class="fw-bold fs-5" id="visibilityValue">--</span>
                             </div>
                         </div>
 
                         <div class="col-6 col-md-4 col-lg-2">
-                            <div class="p-3 bg-body-tertiary rounded-3 text-center h-100">
+                            <div class="weather-stat p-3 rounded-3 text-center h-100">
                                 <small class="text-secondary d-block mb-1">Sunrise</small>
                                 <span class="fw-bold fs-5" id="sunriseValue">--:--</span>
                             </div>
                         </div>
 
                         <div class="col-6 col-md-4 col-lg-2">
-                            <div class="p-3 bg-body-tertiary rounded-3 text-center h-100">
+                            <div class="weather-stat p-3 rounded-3 text-center h-100">
                                 <small class="text-secondary d-block mb-1">Sunset</small>
                                 <span class="fw-bold fs-5" id="sunsetValue">--:--</span>
                             </div>

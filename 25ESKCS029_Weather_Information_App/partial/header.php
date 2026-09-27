@@ -17,18 +17,26 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
             <!-- Search Form -->
-            <form class="d-flex me-auto" role="search" id='searchForm'>
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
+            <form class="d-flex me-auto" role="search" id="searchForm">
+                <input class="form-control me-2" type="search" placeholder="Search a city" aria-label="Search for a city">
+                <button class="btn btn-primary" type="submit">Search</button>
             </form>
             <ul class="navbar-nav ms-auto align-items-lg-center">
 
-                <!-- User Dropdown options -->
+                <li class="nav-item my-2 my-lg-0">
+                    <?php if (function_exists('isLoggedIn') && isLoggedIn()): ?>
+                        <a class="btn btn-outline-primary ms-2" href="admin/index.php">Dashboard</a>
+                        <a class="btn btn-outline-secondary ms-2" href="logout.php">Log out</a>
+                    <?php else: ?>
+                        <a class="btn btn-outline-primary ms-2" href="login.php">Log in</a>
+                    <?php endif; ?>
+                </li>
                
                 <!-- Is navbar me Dark Mode Toggle -->
                 <li class="nav-item my-2 my-lg-0">
                     <form class="d-flex align-items-center" id="darkModeForm"> <button
-                            class="btn btn-outline-secondary ms-2" type="button" id="darkModeSwitch">Dark Mode</button>
+                            class="btn btn-outline-secondary ms-2 theme-toggle" type="button" id="darkModeSwitch"
+                            aria-pressed="false">🌙 Dark mode</button>
                     </form>
                 </li>
 
