@@ -2,10 +2,12 @@
 declare(strict_types=1);
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
     session_start([
         'cookie_httponly' => true,
-        'cookie_samesite' => 'Lax',
-        'cookie_secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'cookie_samesite' => $isHttps && getenv('FRONTEND_URL') ? 'None' : 'Lax',
+        'cookie_secure' => $isHttps,
     ]);
 }
 

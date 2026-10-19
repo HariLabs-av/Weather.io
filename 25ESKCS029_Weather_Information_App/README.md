@@ -1,8 +1,17 @@
-# Weather.io
+# Weather.io backend
 
 ## PHP/MySQL authentication
 
-The project includes a protected admin panel at `admin/index.php`.
+This repository contains the deployable PHP/MySQL authentication backend for the Weather.io frontend. It includes a protected admin panel at `admin/index.php` and JSON endpoints for a separately deployed frontend:
+
+```text
+POST /api/login.php
+GET  /api/me.php
+POST /api/logout.php
+```
+
+The API uses an HttpOnly session cookie. Send `credentials: 'include'` from the Netlify frontend. Set `FRONTEND_URL` to the exact Netlify origin (for example `https://weather-io.netlify.app`; multiple origins may be comma-separated).
+
 Visitors can create regular user accounts from `register.php`; public registration never allows an administrator role.
 
 ## Deploying on Render
@@ -15,11 +24,12 @@ DB_PORT=<mysql-port>
 DB_NAME=<database-name>
 DB_USER=<database-user>
 DB_PASSWORD=<database-password>
+FRONTEND_URL=https://your-site.netlify.app
 ```
 
 In Render, create a Blueprint from this repository, or configure a Docker web service with root directory `25ESKCS029_Weather_Information_App`. After deployment, import `database.sql` into the external MySQL database, open `/admin/setup.php` on the deployed URL, create the administrator, and delete `admin/setup.php` from the repository.
 
-Because the frontend and backend are deployed by the same service, login links remain same-origin and do not require CORS configuration.
+The Docker image installs `pdo_mysql` automatically. `FRONTEND_URL` enables credentialed CORS for the Netlify frontend; never use `*` with authenticated requests. The Render health check is `/health.php`.
 
 ## Local/setup instructions
 
@@ -27,5 +37,16 @@ Because the frontend and backend are deployed by the same service, login links r
 2. Configure the connection with environment variables: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`. Defaults are `127.0.0.1`, `3306`, `weather_io`, `root`, and an empty password.
 3. Open `admin/setup.php` once and create the first administrator account.
 4. Delete `admin/setup.php` after setup and use `login.php` to sign in.
+
+For the Netlify frontend, call the backend URL with credentials enabled:
+
+```js
+fetch(`${BACKEND_URL}/api/login.php`, {
+  method: 'POST',
+  credentials: 'include',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({email, password})
+});
+```
 
 Passwords are stored with PHP's `password_hash()` and all database queries use PDO prepared statements. The admin panel currently provides account counts and a list of registered accounts; only administrators can access it.
