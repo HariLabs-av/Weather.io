@@ -17,7 +17,7 @@ function allowApiOrigin(): void
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     $allowedOrigins = array_filter(array_map('trim', explode(',', (string) getenv('FRONTEND_URL'))));
 
-    if ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
+    if ($origin !== '' && $allowedOrigins !== [] && in_array($origin, $allowedOrigins, true)) {
         header('Access-Control-Allow-Origin: ' . $origin);
         header('Access-Control-Allow-Credentials: true');
         header('Access-Control-Allow-Headers: Content-Type, X-CSRF-Token');

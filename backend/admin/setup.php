@@ -2,12 +2,14 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/schema.php';
 require_once __DIR__ . '/../auth/auth.php';
 
 $error = '';
 $success = '';
 
 try {
+    ensureSchema();
     $userCount = (int) database()->query('SELECT COUNT(*) FROM users')->fetchColumn();
     if ($userCount > 0) {
         $success = 'An account already exists. Delete this setup file and use the login page.';

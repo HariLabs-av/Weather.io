@@ -1,6 +1,6 @@
 # Weather.io
 
-Weather.io is a responsive weather information application with a PHP/MySQL authentication backend. The frontend displays current weather for a searched city using the Open-Meteo geocoding and forecast APIs. The backend provides login, registration, session authentication, a protected administrator dashboard, and JSON endpoints that can be called from the Netlify frontend.
+Weather.io is a responsive weather information application. The frontend pages and PHP authentication backend are deployed together as one Docker web service on Render. Weather data is fetched from Open-Meteo, while user accounts are stored in MySQL.
 
 ## Repository layout
 
@@ -8,63 +8,58 @@ Weather.io is a responsive weather information application with a PHP/MySQL auth
 .
 ├── backend/
 │   ├── api/             # JSON authentication endpoints
-│   ├── admin/           # Protected admin dashboard and one-time setup
+│   ├── admin/           # Protected dashboard and one-time setup
 │   ├── auth/            # Session and CSRF helpers
-│   ├── config/          # PDO/MySQL connection
-│   ├── partial/         # Shared frontend PHP/CSS/JS
+│   ├── config/          # PDO connection and schema initializer
+│   ├── partial/         # Shared PHP/CSS/JS
 │   ├── database.sql     # MySQL schema
 │   ├── Dockerfile       # PHP 8.2 + Apache + PDO MySQL
-│   └── health.php       # Deployment health check
-├── render.yaml          # Render Blueprint configuration
+│   └── health.php       # Render health check
+├── render.yaml
 └── README.md
 ```
 
-The backend directory includes the existing server-rendered Weather.io pages as well as the API. The Netlify frontend can use the API without moving or duplicating authentication code.
+## How the database works
 
-## Backend API
+Render runs the application container but does not provide a built-in MySQL database. Create a MySQL database with an external provider, then connect it to Render using environment variables. The application uses one required table:
 
-| Endpoint | Method | Authentication | Purpose |
-| --- | --- | --- | --- |
-| `/api/login.php` | `POST` | No | Validate credentials and create an HttpOnly session |
-| `/api/me.php` | `GET` | Yes | Return the current logged-in user |
-| `/api/logout.php` | `POST` | CSRF header | Destroy the current session |
-| `/health.php` | `GET` | No | Return backend health status |
+| Table | Purpose |
+| --- | --- |
+| `users` | Stores names, unique emails, password hashes, roles, and creation timestamps |
 
-Login request example:
+The full schema is in [`backend/database.sql`](backend/database.sql). The first-admin page also runs the equivalent `CREATE TABLE IF NOT EXISTS users` statement, so a fresh database can be initialized from the browser.
 
-```js
-const response = await fetch(`${BACKEND_URL}/api/login.php`, {
-  method: 'POST',
-  credentials: 'include',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password })
-});
-
-const result = await response.json();
-```
-
-After login, retain the returned `csrf_token` and send it as `X-CSRF-Token` when calling logout. Always use `credentials: 'include'` for requests that use the session cookie.
-
-## Deploy with Render and an external MySQL database
-
-Render runs the PHP service, while MySQL must be hosted separately. Railway, Aiven, DigitalOcean Managed MySQL, and PlanetScale-compatible MySQL providers are possible choices. Use a provider that supplies a normal MySQL connection and allows the Render service to connect.
+## Deploy everything on Render
 
 ### 1. Create the MySQL database
 
-Create a database and note its host, port, database name, username, and password. Import the schema from `backend/database.sql` using the provider's SQL console or a local MySQL client:
+Create a normal MySQL database with a provider such as Railway, Aiven, DigitalOcean Managed MySQL, or another compatible service. Record:
+
+```text
+DB_HOST
+DB_PORT
+DB_NAME
+DB_USER
+DB_PASSWORD
+```
+
+If the provider gives you a connection URL, use the individual host, port, database, username, and password values from that URL. Do not commit credentials to GitHub.
+
+You may import the schema from your computer:
 
 ```bash
 mysql -h DB_HOST -P DB_PORT -u DB_USER -p DB_NAME < backend/database.sql
 ```
 
-Do not commit database passwords or `.env` files.
+If you do not have the MySQL CLI, use the provider's SQL console and paste the contents of `backend/database.sql`.
 
 ### 2. Create the Render service
 
 1. Push this repository to GitHub.
-2. In Render, choose **New → Blueprint** and select this repository.
-3. Render reads `render.yaml`, builds the Docker service from `backend/`, and checks `/health.php`.
-4. Set these environment variables in the Render dashboard:
+2. In Render, choose **New → Blueprint**.
+3. Select `HariLabs-av/Weather.io`.
+4. Render reads [`render.yaml`](render.yaml), builds `backend/Dockerfile`, and checks `/health.php`.
+5. Add these secret environment variables to the Render service:
 
 | Variable | Value |
 | --- | --- |
@@ -73,30 +68,64 @@ Do not commit database passwords or `.env` files.
 | `DB_NAME` | MySQL database name |
 | `DB_USER` | MySQL username |
 | `DB_PASSWORD` | MySQL password |
-| `FRONTEND_URL` | Exact Netlify origin, for example `https://your-site.netlify.app` |
 
-Do not set `FRONTEND_URL` to `*`. Multiple exact origins may be separated by commas if needed.
+`render.yaml` supplies the default `DB_PORT=3306`; replace it if your provider uses another port.
 
-### 3. Create the first administrator
+There is no `FRONTEND_URL` setting in the production setup because the frontend and backend share the same origin. Same-origin requests automatically include the session cookie.
 
-After the Render service is live:
+### 3. Initialize the tables and admin account
 
-1. Open `https://YOUR-BACKEND.onrender.com/admin/setup.php`.
-2. Create the first administrator account.
-3. Confirm that `/login.php` and `/admin/index.php` work.
-4. Delete `backend/admin/setup.php` from the repository and deploy again. This one-time setup page is intentionally not needed after the first admin exists.
+After the Render deployment succeeds:
 
-### 4. Connect Netlify
+1. Open `https://YOUR-SERVICE.onrender.com/admin/setup.php`.
+2. The page creates the `users` table if it does not exist.
+3. Enter the first administrator's name, email, and password.
+4. Open `https://YOUR-SERVICE.onrender.com/login.php` and sign in.
+5. Open `https://YOUR-SERVICE.onrender.com/admin/index.php` to verify the dashboard.
+6. Delete `backend/admin/setup.php` locally, commit, push, and wait for Render to redeploy.
 
-Set the frontend's backend URL to the Render service URL, for example:
+The setup page refuses to create another administrator once any account exists. Removing it after first use is still required because it is a deployment-only endpoint.
 
-```js
-const BACKEND_URL = 'https://weather-io-backend.onrender.com';
+### 4. Verify the deployment
+
+Open:
+
+```text
+https://YOUR-SERVICE.onrender.com/health.php
 ```
 
-Use the API endpoints above with `credentials: 'include'`. Set `FRONTEND_URL` in Render to the exact public Netlify URL, including `https://` and excluding a trailing slash.
+Expected response:
 
-Because the frontend and backend are on different domains, production must use HTTPS. The backend configures credentialed CORS only for the origin in `FRONTEND_URL`.
+```json
+{"status":"ok"}
+```
+
+Then verify the main page, login, registration, logout, and admin dashboard. If the setup page says that the database is not ready, check the five `DB_*` values, allow external connections in the MySQL provider, and inspect the Render deploy logs.
+
+## Authentication API
+
+The API is same-origin when called by the deployed frontend:
+
+| Endpoint | Method | Purpose |
+| --- | --- | --- |
+| `/api/login.php` | `POST` | Validate credentials and create an HttpOnly session |
+| `/api/me.php` | `GET` | Return the current logged-in user |
+| `/api/logout.php` | `POST` | Validate CSRF token and destroy the session |
+| `/health.php` | `GET` | Return service health |
+
+Example login:
+
+```js
+const response = await fetch('/api/login.php', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email, password })
+});
+
+const result = await response.json();
+```
+
+Retain `result.csrf_token` and send it as `X-CSRF-Token` when logging out. If the frontend is later moved to another domain, configure `FRONTEND_URL` with the exact HTTPS origin and use `credentials: 'include'`.
 
 ## Local development
 
@@ -109,7 +138,7 @@ mysql -u root -p weather_io < database.sql
 php -S localhost:8080
 ```
 
-Open `http://localhost:8080/admin/setup.php` once to create an admin. For local development, the backend defaults to:
+Open `http://localhost:8080/admin/setup.php` once to create the first administrator. Local defaults are:
 
 ```text
 DB_HOST=127.0.0.1
@@ -119,16 +148,10 @@ DB_USER=root
 DB_PASSWORD=
 ```
 
-To test the API from a local frontend, set `FRONTEND_URL=http://localhost:3000` and send requests with `credentials: 'include'`.
-
 ## Security notes
 
-- Passwords are hashed with PHP `password_hash()` and verified with `password_verify()`.
-- Database operations use PDO prepared statements.
+- Passwords use PHP `password_hash()` and `password_verify()`.
+- SQL queries use PDO prepared statements.
 - Sessions use HttpOnly cookies and regenerate the session ID after login.
-- API CORS is allowlisted through `FRONTEND_URL`; wildcard CORS is not supported for authenticated requests.
-- Remove `backend/admin/setup.php` after creating the first administrator.
-
-## License
-
-This project is an internship project by Anant Vijay.
+- The setup page creates only the first administrator and must be deleted after initialization.
+- Never commit MySQL credentials, `.env` files, or exported database dumps containing real user data.
