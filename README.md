@@ -57,7 +57,7 @@ If you do not have the MySQL CLI, use the provider's SQL console and paste the c
 
 1. Push this repository to GitHub.
 2. In Render, choose **New → Blueprint**.
-3. Select `HariLabs-av/Weather.io`.
+3. Select `<user_repo>/Weather.io`.
 4. Render reads [`render.yaml`](render.yaml), builds `backend/Dockerfile`, and checks `/health.php`.
 5. Add these secret environment variables to the Render service:
 
