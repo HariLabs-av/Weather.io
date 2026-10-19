@@ -1,5 +1,7 @@
 # Weather.io backend
 
+See the repository root [`README.md`](../README.md) for the complete project layout, Render deployment instructions, MySQL setup, Netlify integration, and local development guide.
+
 ## PHP/MySQL authentication
 
 This repository contains the deployable PHP/MySQL authentication backend for the Weather.io frontend. It includes a protected admin panel at `admin/index.php` and JSON endpoints for a separately deployed frontend:
@@ -27,7 +29,7 @@ DB_PASSWORD=<database-password>
 FRONTEND_URL=https://your-site.netlify.app
 ```
 
-In Render, create a Blueprint from this repository, or configure a Docker web service with root directory `25ESKCS029_Weather_Information_App`. After deployment, import `database.sql` into the external MySQL database, open `/admin/setup.php` on the deployed URL, create the administrator, and delete `admin/setup.php` from the repository.
+In Render, create a Blueprint from this repository, or configure a Docker web service with root directory `backend`. After deployment, import `database.sql` into the external MySQL database, open `/admin/setup.php` on the deployed URL, create the administrator, and delete `admin/setup.php` from the repository.
 
 The Docker image installs `pdo_mysql` automatically. `FRONTEND_URL` enables credentialed CORS for the Netlify frontend; never use `*` with authenticated requests. The Render health check is `/health.php`.
 

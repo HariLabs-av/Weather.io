@@ -2,8 +2,8 @@ services:
   - type: web
     name: weather-io
     runtime: docker
-    rootDir: 25ESKCS029_Weather_Information_App
-    healthCheckPath: /
+    rootDir: backend
+    healthCheckPath: /health.php
     envVars:
       - key: DB_HOST
         sync: false
