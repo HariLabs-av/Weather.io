@@ -86,6 +86,18 @@ After the Render deployment succeeds:
 
 The setup page refuses to create another administrator once any account exists. Removing it after first use is still required because it is a deployment-only endpoint.
 
+## Manage users
+
+Sign in as an administrator and open `/admin/index.php`. The dashboard allows administrators to:
+
+- Create user or administrator accounts
+- Edit a user's name and email
+- Change a user's role
+- Set a new password without knowing the old password
+- Delete accounts
+
+For safety, the dashboard prevents deleting the signed-in administrator, removing administrator access from the signed-in account, deleting the last administrator, or demoting the last administrator.
+
 ### 4. Verify the deployment
 
 Open:
